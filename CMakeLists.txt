@@ -4,6 +4,16 @@ enable_language(ASM)
 
 add_definitions(-DANDROID_SMP=1 -DHAVE_PTHREADS -DHAVE_SYS_SOCKET_H -DHAVE_STRLCPY=0 -DHAVE_MEMSET32 -DHAVE_MEMSET16)
 
+SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
+
+MESSAGE(STATUS "CMAKE_SYSTEM_PROCESSOR:" ${CMAKE_SYSTEM_PROCESSOR})
+
+IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64") 
+SET(memset "arch-arm64/android_memset.S")
+ELSEIF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm") 
+SET(memset "arch-arm/memset32.S")
+ENDIF()
+
 set(LIBCUTILS_SRC_FILES
     hashmap.c
     properties.c
@@ -35,8 +45,8 @@ set(LIBCUTILS_SRC_FILES
     qtaguid.c
     trace-dev.c
     uevent.c
-    fs_config.c
-    arch-arm64/android_memset.S
+    fs_config.c     
+    ${memset}
 )
 
 add_library(cutils SHARED ${LIBCUTILS_SRC_FILES})
